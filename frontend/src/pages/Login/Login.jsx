@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
+import background from "./bg2.jpg";
 
 export default function Login() {
   const [role, setRole] = useState("citizen");
@@ -33,6 +34,6 @@ export default function Login() {
 
         <button className="btn" onClick={handleLogin}>Login</button>
       </div>
-    </div>
-  );
+    </div>
+  );
 }

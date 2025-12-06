@@ -46,6 +46,12 @@ router.get("/all-issues", issueController.getAllIssues);
 router.get("/issue/:id", issueController.getIssueDetails);
 
 // =====================================
+// Reverse geocode coordinates to address
+// GET /api/reverse-geocode?latitude=LAT&longitude=LON
+// =====================================
+router.get("/reverse-geocode", issueController.reverseGeocode);
+
+// =====================================
 // Worker marks issue as completed
 // POST /api/update/:id
 // =====================================
@@ -56,5 +62,36 @@ router.post("/update/:id", upload.single("workerImage"), issueController.updateI
 // POST /api/feedback/:id
 // =====================================
 router.post("/feedback/:id", issueController.addFeedback);
+
+// =====================================
+// Admin assigns issue to worker
+// POST /api/assign/:id
+// Body: { workerId }
+// =====================================
+router.post("/assign/:id", async (req, res) => {
+  try {
+    const { workerId } = req.body;
+    const Issue = require("../models/Issue");
+    
+    if (!workerId) {
+      return res.status(400).json({ message: "Worker ID is required" });
+    }
+    
+    const issue = await Issue.findByIdAndUpdate(
+      req.params.id,
+      { workerId: workerId },
+      { new: true }
+    );
+    
+    if (!issue) {
+      return res.status(404).json({ message: "Issue not found" });
+    }
+    
+    res.json({ message: "Issue assigned successfully", issue });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 module.exports = router;

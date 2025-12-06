@@ -7,7 +7,10 @@ const { getAddressFromCoordinates } = require("../services/locationService");
  */
 exports.createIssue = async (req, res) => {
     try {
-        const { description, citizenId, userType, latitude, longitude } = req.body;
+        let { description, citizenId, userType, latitude, longitude } = req.body;
+
+        // Debug log to see what we're receiving
+        console.log("🔍 Received data:", { description, latitude, longitude, citizenId, userType });
 
         if (!description) {
             return res.status(400).json({ message: "Description required" });
@@ -17,16 +20,20 @@ exports.createIssue = async (req, res) => {
             return res.status(400).json({ message: "Image required" });
         }
 
+        // Parse latitude and longitude
+        latitude = latitude ? parseFloat(latitude) : null;
+        longitude = longitude ? parseFloat(longitude) : null;
+
+        console.log("📍 Parsed coordinates:", { latitude, longitude });
+
         const imagePath = `uploads/${req.file.filename}`;
 
         // Get address if coordinates provided
         let address = null;
         if (latitude && longitude) {
-            const locationData = await getAddressFromCoordinates(
-                parseFloat(latitude),
-                parseFloat(longitude)
-            );
+            const locationData = await getAddressFromCoordinates(latitude, longitude);
             address = locationData.success ? locationData.formatted : null;
+            console.log("🏘️ Address:", address);
         }
 
         // Process issue with deduplication
@@ -35,10 +42,15 @@ exports.createIssue = async (req, res) => {
             citizenId: citizenId || "anonymous",
             userType: userType || "citizen",
             imagePath,
-            latitude: latitude ? parseFloat(latitude) : null,
-            longitude: longitude ? parseFloat(longitude) : null,
-            address
+            latitude,
+            longitude,
+            address,
+            category: req.body.category,
+            severity: req.body.severity,
+            location: req.body.location
         });
+
+        console.log("✅ Result:", result);
 
         if (!result.success) {
             return res.status(500).json({ message: result.error });
@@ -46,7 +58,7 @@ exports.createIssue = async (req, res) => {
 
         res.json(result);
     } catch (err) {
-        console.error(err);
+        console.error("❌ Error:", err);
         res.status(500).json({ message: "Server error", error: err.message });
     }
 };
@@ -147,5 +159,25 @@ exports.addFeedback = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Server error" });
+    }
+};
+
+/**
+ * Reverse geocode coordinates to address
+ * GET /api/reverse-geocode?latitude=LAT&longitude=LON
+ */
+exports.reverseGeocode = async (req, res) => {
+    try {
+        const { latitude, longitude } = req.query;
+
+        if (!latitude || !longitude) {
+            return res.status(400).json({ message: "Latitude and longitude required" });
+        }
+
+        const address = await getAddressFromCoordinates(parseFloat(latitude), parseFloat(longitude));
+        res.json({ address });
+    } catch (err) {
+        console.error("Reverse geocode error:", err);
+        res.status(500).json({ message: "Failed to get address", error: err.message });
     }
 };

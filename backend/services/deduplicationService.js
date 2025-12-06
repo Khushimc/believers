@@ -153,7 +153,7 @@ async function linkDuplicate(newIssueId, duplicateOfId, citizenId) {
  */
 async function processIssueUpload(issueData) {
     try {
-        const { description, citizenId, latitude, longitude, imagePath, userType } = issueData;
+        const { description, citizenId, latitude, longitude, imagePath, userType, address, category, severity, location } = issueData;
 
         // If no location provided, just create the issue
         if (!latitude || !longitude) {
@@ -162,6 +162,9 @@ async function processIssueUpload(issueData) {
                 citizenId,
                 userType,
                 imagePath,
+                category,
+                severity,
+                location,
                 status: "In Progress"
             });
             await newIssue.save();
@@ -187,6 +190,10 @@ async function processIssueUpload(issueData) {
                 imagePath,
                 latitude,
                 longitude,
+                address,
+                category,
+                severity,
+                location,
                 isDuplicate: true,
                 duplicateOf: masterIssue._id,
                 status: "In Progress"
@@ -204,6 +211,7 @@ async function processIssueUpload(issueData) {
             return {
                 success: true,
                 isDuplicate: true,
+                issue: newIssue,
                 masterIssueId: masterIssue._id,
                 newIssueId: newIssue._id,
                 similarity: duplicates[0].similarity,
@@ -221,6 +229,10 @@ async function processIssueUpload(issueData) {
             imagePath,
             latitude,
             longitude,
+            address,
+            category,
+            severity,
+            location,
             status: "In Progress"
         });
         await newIssue.save();

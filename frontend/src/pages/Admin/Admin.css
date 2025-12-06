@@ -1,24 +1,299 @@
-.page-wrap {
-  max-width: 1200px;
+/* ----------------------------------------------------
+   FULL SCREEN GRADIENT BACKGROUND
+-----------------------------------------------------*/
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+
+  /* Vibrant full-screen gradient */
+  background: linear-gradient(135deg, #6a5af9, #9b6bff, #ff6bcb);
+  background-size: 1000% 1000%;
+  animation: gradientFlow 12s ease infinite;
+
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #fff;
+}
+
+/* Smooth gradient shifting animation */
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Full Page Admin Container */
+.admin-container {
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 40px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
-.muted {
-  color: #6b7280;
-  margin-bottom: 20px;
+/* Optional subtle overlay for readability */
+.admin-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.15); /* lighter overlay so gradient shows */
+  z-index: -1;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
-  gap: 18px;
+/* Title */
+.admin-title {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 50px;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
 }
 
-.card {
+/* Overview Cards */
+.admin-overview {
+  display: flex;
+  gap: 25px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 60px;
+  width: 100%;
+}
+
+/* Cards */
+.admin-card {
+  background: rgba(255, 255, 255, 0.18); /* glass effect */
+  color: #fff;
+  padding: 30px 25px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  text-align: center;
+  width: 220px;
+  transition: all 0.4s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.admin-card:hover {
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.35);
+}
+
+.admin-card h3 {
+  margin-bottom: 12px;
+  font-size: 1.2rem;
+}
+
+.admin-card p {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ff6b6b;
+  margin: 0;
+}
+
+/* Sections */
+.admin-section {
+  margin-bottom: 60px;
+  width: 100%;
+}
+
+.admin-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 25px;
+  color: #fff;
+  text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+  text-align: center;
+}
+
+/* Tables */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  background: rgba(255,255,255,0.18); /* glass effect */
+  color: #fff;
+  margin: 0 auto;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 15px 20px;
+  text-align: left;
+}
+
+.admin-table th {
+  background-color: rgba(30,144,255,0.7);
+  color: #fff;
+  font-weight: 600;
+}
+
+.admin-table tbody tr:nth-child(even) {
+  background-color: rgba(255,255,255,0.08);
+}
+
+.admin-table tbody tr:hover {
+  background-color: rgba(255,255,255,0.15);
+}
+
+/* Status Labels inside table */
+.status-pending {
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+.status-completed {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.status-processing {
+  color: #007bff;
+  font-weight: bold;
+}
+
+.status-cancelled {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+/* Category Filter */
+.category-filter {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 20px 0;
+}
+
+.category-btn {
+  padding: 10px 20px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.category-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.category-btn.active {
+  background: rgba(255, 107, 107, 0.8);
+  border-color: #ff6b6b;
+  box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
+}
+
+/* Assign Container */
+.assign-container {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 20px 0;
+  background: rgba(255, 255, 255, 0.1);
   padding: 20px;
   border-radius: 12px;
-  background: #ffffff;
-  border: 1px solid #e6e9ef;
-  box-shadow: 0 8px 24px rgba(16,24,40,0.06);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.assign-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.assign-field label {
+  font-weight: 600;
+  color: #fff;
+  font-size: 14px;
+}
+
+.assign-field select {
+  padding: 10px 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.assign-field select:hover,
+.assign-field select:focus {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.25);
+  outline: none;
+}
+
+.assign-field select option {
+  background: #333;
+  color: #fff;
+}
+
+.assign-btn {
+  padding: 10px 25px;
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  align-self: flex-end;
+  height: fit-content;
+}
+
+.assign-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+}
+
+.assign-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive tweaks */
+@media (max-width: 1200px) {
+  .admin-overview {
+    justify-content: center;
+  }
+  .admin-card {
+    width: 45%;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-card {
+    width: 90%;
+  }
+  .assign-container {
+    flex-direction: column;
+  }
+  .assign-btn {
+    align-self: stretch;
+  }
 }

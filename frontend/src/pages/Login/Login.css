@@ -1,92 +1,186 @@
-/* Full page center */
+/* ------------------------------
+   FULL PAGE BACKGROUND
+--------------------------------*/
 .login-page {
   height: 100vh;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #3b82f6, #1e40af);
+
+  background-image: url("./bg2.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
   font-family: "Poppins", sans-serif;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Glass card */
+/* Premium gradient overlay */
+.login-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    rgba(0, 0, 0, 0.65),
+    rgba(0, 0, 50, 0.65)
+  );
+  z-index: 0;
+}
+
+/* ------------------------------
+   LOGIN CARD (GLASS UI)
+--------------------------------*/
 .login-card {
-  width: 380px;
-  padding: 30px;
+  width: 400px;
+  padding: 40px;
   border-radius: 20px;
 
   background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.45);
   color: white;
   text-align: center;
+  z-index: 2;
+
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
 }
 
 .login-card h2 {
-  margin-bottom: 20px;
-  font-weight: 700;
-  font-size: 26px;
+  margin-bottom: 28px;
+  font-weight: 800;
+  font-size: 32px;
+  letter-spacing: 1px;
+  text-shadow: 0 3px 12px rgba(0,0,0,0.6);
 }
 
-/* Stylish select dropdown */
-/* Stylish Role Dropdown */
-.role-select {
-   width: 100%;
-  padding: 12px;
+/* ------------------------------
+   SELECT DROPDOWN (PREMIUM)
+--------------------------------*/
+.login-select {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 18px;
+
+  background: rgba(255, 255, 255, 0.25);
   border: none;
   border-radius: 12px;
-  background: #2563eb;
-  color: white;
+
+  color: #fff;
   font-size: 18px;
   font-weight: 600;
 
-  background: rgba(255, 255, 255, 0.25);
-  color: white;
   outline: none;
-
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-
-  appearance: none;
   cursor: pointer;
-
   transition: 0.3s ease;
 }
 
-/* Hover effect */
-.role-select:hover {
+.login-select:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(1.02);
+}
+
+.login-select:focus {
+  box-shadow: 0 0 12px rgba(0, 153, 255, 0.8);
+}
+
+.login-select option {
+  color: black;
+}
+
+/* ------------------------------
+   INPUT FIELDS (ANIMATED)
+--------------------------------*/
+.input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 16px;
+
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  border-radius: 12px;
+
+  color: #fff;
+  font-size: 17px;
+  font-weight: 500;
+
+  outline: none;
+  transition: 0.3s ease;
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.input:hover {
   background: rgba(255, 255, 255, 0.35);
 }
 
-/* When clicked (active) */
-.role-select:focus {
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.6);
+.input:focus {
+  box-shadow: 0 0 12px rgba(0, 153, 255, 0.8);
+  transform: scale(1.02);
 }
 
-/* Your dropdown options */
-.role-select option {
-  color: #000;
-  font-weight: 500;
-}
-
-
-/* Sexy button */
-.login-btn {
+/* ------------------------------
+   LOGIN BUTTON (PREMIUM)
+--------------------------------*/
+.btn {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   border: none;
   border-radius: 12px;
-  background: #2563eb;
+
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: white;
-  font-size: 18px;
-  font-weight: 600;
+
+  font-size: 19px;
+  font-weight: 700;
+
   cursor: pointer;
-  transition: 0.3s ease;
+  transition: 0.4s ease;
+
+  margin-top: 10px;
+  box-shadow: 0 5px 18px rgba(37, 99, 235, 0.6);
 }
 
-.login-btn:hover {
-  background: #1d4ed8;
-  transform: scale(1.03);
+.btn:hover {
+  transform: scale(1.07);
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.75);
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+/* ------------------------------
+   NAVBAR FIX — WHITE & BOLD
+--------------------------------*/
+.navbar,
+.navbar-container,
+header {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.navbar a,
+.nav-link,
+.navbar li a {
+  color: #fff !important;
+  font-weight: 900 !important;
+  font-size: 18px !important;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.7);
 }

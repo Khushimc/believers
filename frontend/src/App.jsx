@@ -13,9 +13,12 @@ import IssueStatus from "./pages/Citizen/IssueStatus.jsx";
 
 // Worker
 import WorkerDashboard from "./pages/Worker/WorkerDashboard.jsx";
+import WorkerHome from "./pages/Worker/WorkerHome.jsx";
 
 // Admin
 import AdminDashboard from "./pages/Admin/AdminDashboard.jsx";
+import AdminHome from "./pages/Admin/AdminHome.jsx";
+
 
 export default function App() {
   return (
@@ -25,9 +28,6 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
-        
-        {/* Test route - no protection */}
-        <Route path="/citizen/report" element={<ReportIssue />} />
 
         {/* Citizen */}
         <Route
@@ -72,6 +72,14 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+         path="/worker/home"
+          element={
+            <ProtectedRoute role="worker">
+              <WorkerHome />
+            </ProtectedRoute>
+          }
+          />
 
         {/* Admin */}
         <Route
@@ -82,7 +90,15 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/home"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminHome />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
-    </>
-  );
+    </>
+  );
 }

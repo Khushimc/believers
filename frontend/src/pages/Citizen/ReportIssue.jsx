@@ -1,188 +1,270 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect, useRef } from "react";
+import "../Citizen/Citizen.css";
+import api from "../../api/config";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
 
 export default function ReportIssue() {
-  const [file, setFile] = useState(null);
+  const [photo, setPhoto] = useState(null);
+  const [severity, setSeverity] = useState("");
+  const [location, setLocation] = useState("");
+  const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
-  const [location, setLocation] = useState(null);
-  const [address, setAddress] = useState("");
-  const [isDuplicate, setIsDuplicate] = useState(false);
-  const [duplicateInfo, setDuplicateInfo] = useState(null);
+  const [gpsLocation, setGpsLocation] = useState(null);
+  const [mapReady, setMapReady] = useState(false);
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+  const markerRef = useRef(null);
 
-  // Get user's current location
+  // Get GPS location on mount
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const { latitude, longitude } = position.coords;
-          setLocation({ latitude, longitude });
-          reverseGeocode(latitude, longitude);
+          setGpsLocation({ latitude, longitude });
+          console.log("📍 GPS Location:", { latitude, longitude });
+          
+          // Get address from coordinates
+          try {
+            const response = await api.get(`/reverse-geocode?lat=${latitude}&lon=${longitude}`);
+            if (response.data.address) {
+              setLocation(response.data.address);
+            }
+          } catch (error) {
+            console.log("Could not fetch address automatically");
+          }
         },
         (error) => {
-          console.log("Location permission denied:", error.message);
-          alert("Please enable location access to report issues");
+          console.log("⚠️ GPS Error:", error.message);
         }
       );
     }
   }, []);
 
-  // Reverse geocode to get address
-  const reverseGeocode = async (lat, lon) => {
-    try {
-      const response = await axios.get(
-        `https://nominatim.openstreetmap.org/reverse`,
-        {
-          params: {
-            lat: lat,
-            lon: lon,
-            format: "json",
-          },
-        }
-      );
-      setAddress(response.data.address.road || response.data.display_name);
-    } catch (error) {
-      console.error("Geocoding error:", error);
-    }
-  };
+  // Initialize and update map
+  useEffect(() => {
+    if (mapRef.current && gpsLocation) {
+      if (!mapInstanceRef.current) {
+        // Create map instance
+        const map = L.map(mapRef.current).setView(
+          [gpsLocation.latitude, gpsLocation.longitude],
+          15
+        );
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+        // Add OpenStreetMap tiles
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          maxZoom: 19,
+        }).addTo(map);
 
-    if (!file) return alert("Select an image!");
-    if (!description) return alert("Enter a description!");
-    if (!location) return alert("Location not available!");
+        mapInstanceRef.current = map;
+        setMapReady(true);
 
-    const formData = new FormData();
-    formData.append("image", file);
-    formData.append("description", description);
-    formData.append("userType", "citizen");
-    formData.append("latitude", location.latitude);
-    formData.append("longitude", location.longitude);
+        // Handle map clicks to set location
+        map.on("click", async (e) => {
+          const { lat, lng } = e.latlng;
+          setGpsLocation({ latitude: lat, longitude: lng });
 
-    setLoading(true);
-    try {
-      const res = await axios.post("/api/upload", formData);
-      
-      if (res.data.isDuplicate) {
-        setIsDuplicate(true);
-        setDuplicateInfo(res.data);
-        alert(`⚠️ Duplicate Issue Detected!\n\n${res.data.message}\n\nYour report has been added to the existing issue.`);
-      } else {
-        alert("✅ Issue submitted successfully!");
-        setIsDuplicate(false);
+          // Get address
+          try {
+            const response = await api.get(`/reverse-geocode?latitude=${lat}&longitude=${lng}`);
+            if (response.data.address) {
+              setLocation(response.data.address);
+            }
+          } catch (error) {
+            console.log("Could not fetch address for clicked location");
+          }
+        });
       }
 
-      setFile(null);
+      // Update or create marker at current location
+      const map = mapInstanceRef.current;
+      if (markerRef.current) {
+        markerRef.current.setLatLng([gpsLocation.latitude, gpsLocation.longitude]);
+      } else {
+        const marker = L.marker([gpsLocation.latitude, gpsLocation.longitude])
+          .addTo(map)
+          .bindPopup("📍 Current Location");
+        markerRef.current = marker;
+      }
+
+      // Center map on location
+      map.setView([gpsLocation.latitude, gpsLocation.longitude], 15);
+
+      return () => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.remove();
+          mapInstanceRef.current = null;
+          markerRef.current = null;
+        }
+      };
+    }
+  }, [gpsLocation]);
+
+  const handleSubmit = async () => {
+    if (!severity) {
+      alert("Please select a severity before submitting.");
+      return;
+    }
+
+    if (!category) {
+      alert("Please select a category.");
+      return;
+    }
+
+    if (!description) {
+      alert("Please describe the issue.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("description", description);
+      formData.append("category", category);
+      formData.append("severity", severity);
+      formData.append("location", location);
+      formData.append("latitude", gpsLocation?.latitude || 0);
+      formData.append("longitude", gpsLocation?.longitude || 0);
+      formData.append("citizenId", localStorage.getItem("citizenId") || "anonymous");
+      formData.append("userType", "citizen");
+      if (photo) {
+        formData.append("image", photo);
+      }
+
+      console.log("📤 Sending to backend...");
+      const response = await api.post("/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      console.log("✅ Response:", response.data);
+
+      if (response.data.isDuplicate) {
+        alert(`⚠️ Duplicate Issue Detected!\n${response.data.message}\nReported ${response.data.reportCount} times`);
+      } else {
+        alert(`✅ Issue submitted successfully!\nCategory: ${category}\nSeverity: ${severity}`);
+      }
+
+      // Reset form
+      setPhoto(null);
+      setSeverity("");
+      setLocation("");
+      setCategory("");
       setDescription("");
-    } catch (err) {
-      console.error("Upload error:", err);
-      const errorMsg = err.response?.data?.message || err.message;
-      alert(`Upload failed: ${errorMsg}`);
+    } catch (error) {
+      console.error("❌ Error:", error);
+      console.error("❌ Error Message:", error.message);
+      console.error("❌ Error Response:", error.response?.data);
+      const errorMsg = error.response?.data?.message || error.message || "Failed to submit issue. Please try again.";
+      alert(`❌ Error: ${errorMsg}`);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: "600px", margin: "0 auto", padding: "20px" }}>
+    <div className="page-wrap">
       <h2>Report an Issue</h2>
 
-      {isDuplicate && duplicateInfo && (
-        <div
-          style={{
-            backgroundColor: "#fff3cd",
-            border: "1px solid #ffc107",
-            borderRadius: "4px",
-            padding: "15px",
-            marginBottom: "20px",
-          }}
-        >
-          <strong>🔔 Similar Issue Found!</strong>
-          <p>
-            This is {(duplicateInfo.similarity * 100).toFixed(1)}% similar to an existing issue
-            {duplicateInfo.distance && ` (${duplicateInfo.distance.toFixed(0)}m away)`}
-          </p>
-          <p>Your report has been recorded and linked to the main issue.</p>
-          <p>
-            <strong>Total Reports:</strong> {duplicateInfo.reportCount}
-          </p>
+      {/* Map Container */}
+      {gpsLocation && (
+        <div style={{
+          width: "100%",
+          height: "300px",
+          marginBottom: "20px",
+          borderRadius: "8px",
+          overflow: "hidden",
+          border: "2px solid #ddd",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+        }}>
+          <div 
+            ref={mapRef} 
+            style={{ width: "100%", height: "100%" }}
+          />
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "15px" }}>
-          <label>
-            <strong>Location:</strong>
-          </label>
-          <p>
-            {location ? (
-              <>
-                📍 <strong>Lat:</strong> {location.latitude.toFixed(4)}, <strong>Lon:</strong>{" "}
-                {location.longitude.toFixed(4)}
-                <br />
-                <em>{address || "Getting address..."}</em>
-              </>
-            ) : (
-              <span style={{ color: "red" }}>🔴 Location unavailable</span>
-            )}
+      <div className="card form-card">
+        <input 
+          type="file" 
+          onChange={(e) => setPhoto(e.target.files[0])} 
+          accept="image/*"
+          disabled={loading}
+        />
+
+        <input 
+          className="input" 
+          type="text" 
+          placeholder="Location / Landmark" 
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          disabled={loading}
+        />
+
+        {gpsLocation && (
+          <p style={{ fontSize: "12px", color: "#666" }}>
+            📍 GPS: {gpsLocation.latitude.toFixed(4)}, {gpsLocation.longitude.toFixed(4)}
           </p>
+        )}
+
+        <select 
+          className="input"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          disabled={loading}
+        >
+          <option value="">Select Category</option>
+          <option value="Pothole">Pothole</option>
+          <option value="Garbage Overflow">Garbage Overflow</option>
+          <option value="Drainage Block">Drainage Block</option>
+          <option value="Streetlight Not Working">Streetlight Not Working</option>
+          <option value="Streetdogs issues">Streetdogs issues</option>
+        </select>
+
+        <textarea 
+          className="input" 
+          placeholder="Describe the issue"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          disabled={loading}
+        ></textarea>
+
+        <div className="severity-buttons">
+          <button
+            className={`severity-btn ${severity === "Mild" ? "active" : ""}`}
+            onClick={() => setSeverity("Mild")}
+            disabled={loading}
+          >
+            Mild
+          </button>
+          <button
+            className={`severity-btn ${severity === "Moderate" ? "active" : ""}`}
+            onClick={() => setSeverity("Moderate")}
+            disabled={loading}
+          >
+            Moderate
+          </button>
+          <button
+            className={`severity-btn ${severity === "Severe" ? "active" : ""}`}
+            onClick={() => setSeverity("Severe")}
+            disabled={loading}
+          >
+            Severe
+          </button>
         </div>
 
-        <div style={{ marginBottom: "15px" }}>
-          <label>
-            <strong>Issue Description:</strong>
-          </label>
-          <textarea
-            placeholder="Describe the issue (pothole, street light, garbage, etc.)"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            style={{
-              width: "100%",
-              height: "120px",
-              padding: "10px",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-            }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "15px" }}>
-          <label>
-            <strong>Upload Image:</strong>
-          </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setFile(e.target.files[0])}
-            required
-            style={{
-              display: "block",
-              marginTop: "5px",
-              padding: "10px",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-            }}
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading || !location}
-          style={{
-            backgroundColor: loading || !location ? "#ccc" : "#007bff",
-            color: "white",
-            padding: "10px 20px",
-            border: "none",
-            borderRadius: "4px",
-            cursor: loading || !location ? "not-allowed" : "pointer",
-            fontSize: "16px",
-          }}
+        <button 
+          className="btn" 
+          onClick={handleSubmit}
+          disabled={loading}
         >
           {loading ? "Submitting..." : "Submit Issue"}
         </button>
-      </form>
-    </div>
-  );
+      </div>
+    </div>
+  );
 }

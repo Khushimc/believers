@@ -26,6 +26,6 @@ export default function CitizenHome() {
           <a className="btn" href="/citizen/dashboard">Open Dashboard</a>
         </div>
       </div>
-    </div>
-  );
+    </div>
+  );
 }

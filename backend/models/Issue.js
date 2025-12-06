@@ -12,6 +12,9 @@ const IssueSchema = new mongoose.Schema({
     },
     imagePath: String,
     workerImagePath: String,
+    category: String,
+    severity: String,
+    location: String,
     status: {
         type: String,
         default: "In Progress",
@@ -23,12 +26,12 @@ const IssueSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    // NEW: Location data for deduplication
+    // Location data for deduplication
     latitude: Number,
     longitude: Number,
     address: String,
     
-    // NEW: Duplicate tracking
+    // Duplicate tracking
     isDuplicate: {
         type: Boolean,
         default: false
