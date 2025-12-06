@@ -1,0 +1,92 @@
+/* Full page center */
+.login-page {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  font-family: "Poppins", sans-serif;
+}
+
+/* Glass card */
+.login-card {
+  width: 380px;
+  padding: 30px;
+  border-radius: 20px;
+
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  color: white;
+  text-align: center;
+}
+
+.login-card h2 {
+  margin-bottom: 20px;
+  font-weight: 700;
+  font-size: 26px;
+}
+
+/* Stylish select dropdown */
+/* Stylish Role Dropdown */
+.role-select {
+   width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: #2563eb;
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  outline: none;
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  appearance: none;
+  cursor: pointer;
+
+  transition: 0.3s ease;
+}
+
+/* Hover effect */
+.role-select:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* When clicked (active) */
+.role-select:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.6);
+}
+
+/* Your dropdown options */
+.role-select option {
+  color: #000;
+  font-weight: 500;
+}
+
+
+/* Sexy button */
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: #2563eb;
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.login-btn:hover {
+  background: #1d4ed8;
+  transform: scale(1.03);
+}

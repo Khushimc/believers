@@ -1,0 +1,58 @@
+/* full width fixed header */
+.main-header {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 200;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 40px;
+
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(15,23,42,0.06);
+  box-shadow: 0 6px 20px rgba(2,6,23,0.04);
+}
+
+/* header left */
+.header-left .logo, .logo {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* nav */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.nav-links a {
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: #0f172a;
+  font-weight: 600;
+  transition: all 0.18s ease;
+}
+
+.nav-links a:hover {
+  background: rgba(2,6,23,0.06);
+  transform: translateY(-2px);
+}
+
+/* logout button */
+.header-logout {
+  background: transparent;
+  border: 1px solid rgba(2,6,23,0.08);
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+}

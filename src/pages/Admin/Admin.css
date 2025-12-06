@@ -1,0 +1,24 @@
+.page-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.muted {
+  color: #6b7280;
+  margin-bottom: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+  gap: 18px;
+}
+
+.card {
+  padding: 20px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e6e9ef;
+  box-shadow: 0 8px 24px rgba(16,24,40,0.06);
+}
