@@ -1,23 +1,61 @@
-import "../Citizen/Citizen.css";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import "../Citizen/Citizen.css"; // keep your existing styles
 
-export default function IssueStatus() {
+export default function CitizenStatus() {
+  const [issues, setIssues] = useState([]);
+
+  useEffect(() => {
+    const fetchIssues = async () => {
+      try {
+        const res = await axios.get("/api/issues");
+        setIssues(res.data.filter(issue => issue.userType === "citizen"));
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchIssues();
+  }, []);
+
+  const handleFeedback = async (issueId, isDone) => {
+    try {
+      await axios.post(`/api/feedback/${issueId}`, { feedback: isDone ? "Done" : "Not Done" });
+      alert("Feedback submitted!");
+      // refresh issues
+      const res = await axios.get("/api/issues");
+      setIssues(res.data.filter(issue => issue.userType === "citizen"));
+    } catch (err) {
+      console.error(err);
+      alert("Feedback failed");
+    }
+  };
+
   return (
     <div className="page-wrap">
       <h2>Your Reported Issues</h2>
 
-      <div className="card">
-        <h4>Pothole near MG Road</h4>
-        <p>Status: In Progress</p>
-      </div>
+      {issues.length === 0 && <p>No issues submitted yet.</p>}
 
-      <div className="card">
-        <h4>Garbage overflow near Hostel</h4>
-        <p>Status: Completed</p>
-      </div>
-      <div className="card">
-        <h4> Street light damage in SIT</h4>
-        <h4> Status:In process</h4>
-      </div>
+      {issues.map((issue) => (
+        <div key={issue._id} className="card">
+          <h4>{issue.description}</h4>
+          {issue.imagePath && (
+            <img
+              src={`http://localhost:5000/${issue.imagePath}`}
+              alt=""
+              style={{ width: "200px", margin: "10px 0" }}
+            />
+          )}
+          <p>Status: {issue.status}</p>
+
+          {issue.status === "Completed" && !issue.feedback && (
+            <div>
+              <button onClick={() => handleFeedback(issue._id, true)}>Work Done</button>
+              <button onClick={() => handleFeedback(issue._id, false)}>Not Done</button>
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }

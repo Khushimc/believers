@@ -25,6 +25,9 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
+        
+        {/* Test route - no protection */}
+        <Route path="/citizen/report" element={<ReportIssue />} />
 
         {/* Citizen */}
         <Route
