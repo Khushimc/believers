@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Upload image</title>
+</head>
+<body>
+  <h2>Upload an image (plain HTML form)</h2>
+
+  <form action="/upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="image" accept="image/*" required />
+    <button type="submit">Submit</button>
+  </form>
+
+  <p>After submitting you'll get a simple response page with the uploaded image.</p>
+</body>
+</html>
